@@ -1,5 +1,6 @@
 port module Model exposing (Model, Leaderboard, LeaderboardEntry, State(..), Goal(..), View(..), interate, initialModel)
 
+import List exposing (head, reverse)
 import Utils exposing (floatModulo)
 import Config exposing (config)
 
@@ -106,7 +107,7 @@ state model =
 
         _ ->
             if model.state == Crashed then
-                { model | state = Paused }
+                { model | state = Paused, score = 0 }
             else if model.y > (config.vehicle.y / 2 + config.base.y) then
                 { model | state = Flying }
             else if model.x < 45 || model.x > 50 + config.pad.x then
@@ -260,10 +261,28 @@ vehicle model =
 
 highScore : Model -> ( Model, Cmd a )
 highScore model =
-    if (model.state == Crashed) then
-        if (model.score > model.highScore) then
-            ( { model | highScore = model.score, score = 0, state = Paused, view = Leaderboard }, saveScore model.score )
+    let
+        highScore =
+            max model.score model.highScore
+
+        updatedModel =
+            { model | highScore = highScore }
+    in
+        if (model.state == Crashed) then
+            if (model.score > leaderboardThreshold model) then
+                ( { updatedModel | view = Leaderboard }, saveScore model.score )
+            else
+                ( updatedModel, Cmd.none )
         else
-            ( { model | score = 0 }, Cmd.none )
-    else
-        ( model, Cmd.none )
+            ( model, Cmd.none )
+
+
+leaderboardThreshold : Model -> Int
+leaderboardThreshold model =
+    let
+        last =
+            Maybe.withDefault
+                { score = 0, username = "" }
+                (model.leaderboard |> reverse |> head)
+    in
+        last.score

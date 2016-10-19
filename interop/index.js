@@ -19,7 +19,7 @@ var HIGHSCORE = 'HIGHSCORE';
 app.ports.saveScore.subscribe(function(score) {
   console.log('saveScore()', score);
   localStorage.setItem(HIGHSCORE, score);
-  saveHighScore('C*B', score);
+  saveHighScore('WWW', score);
 });
 
 // initialize

@@ -8310,6 +8310,14 @@ var _elm_lang$elm_architecture_tutorial$Utils$floatModulo = F2(
 		}
 	});
 
+var _elm_lang$elm_architecture_tutorial$Model$leaderboardThreshold = function (model) {
+	var last = A2(
+		_elm_lang$core$Maybe$withDefault,
+		{score: 0, username: ''},
+		_elm_lang$core$List$head(
+			_elm_lang$core$List$reverse(model.leaderboard)));
+	return last.score;
+};
 var _elm_lang$elm_architecture_tutorial$Model$saveScore = _elm_lang$core$Native_Platform.outgoingPort(
 	'saveScore',
 	function (v) {
@@ -8362,19 +8370,19 @@ var _elm_lang$elm_architecture_tutorial$Model$Paused = {ctor: 'Paused'};
 var _elm_lang$elm_architecture_tutorial$Model$Landed = {ctor: 'Landed'};
 var _elm_lang$elm_architecture_tutorial$Model$Crashed = {ctor: 'Crashed'};
 var _elm_lang$elm_architecture_tutorial$Model$highScore = function (model) {
-	return _elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Crashed) ? ((_elm_lang$core$Native_Utils.cmp(model.score, model.highScore) > 0) ? {
+	var highScore = A2(_elm_lang$core$Basics$max, model.score, model.highScore);
+	var updatedModel = _elm_lang$core$Native_Utils.update(
+		model,
+		{highScore: highScore});
+	return _elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Crashed) ? ((_elm_lang$core$Native_Utils.cmp(
+		model.score,
+		_elm_lang$elm_architecture_tutorial$Model$leaderboardThreshold(model)) > 0) ? {
 		ctor: '_Tuple2',
 		_0: _elm_lang$core$Native_Utils.update(
-			model,
-			{highScore: model.score, score: 0, state: _elm_lang$elm_architecture_tutorial$Model$Paused, view: _elm_lang$elm_architecture_tutorial$Model$Leaderboard}),
+			updatedModel,
+			{view: _elm_lang$elm_architecture_tutorial$Model$Leaderboard}),
 		_1: _elm_lang$elm_architecture_tutorial$Model$saveScore(model.score)
-	} : {
-		ctor: '_Tuple2',
-		_0: _elm_lang$core$Native_Utils.update(
-			model,
-			{score: 0}),
-		_1: _elm_lang$core$Platform_Cmd$none
-	}) : {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+	} : {ctor: '_Tuple2', _0: updatedModel, _1: _elm_lang$core$Platform_Cmd$none}) : {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 };
 var _elm_lang$elm_architecture_tutorial$Model$Flying = {ctor: 'Flying'};
 var _elm_lang$elm_architecture_tutorial$Model$state = function (model) {
@@ -8384,7 +8392,7 @@ var _elm_lang$elm_architecture_tutorial$Model$state = function (model) {
 	} else {
 		return _elm_lang$core$Native_Utils.eq(model.state, _elm_lang$elm_architecture_tutorial$Model$Crashed) ? _elm_lang$core$Native_Utils.update(
 			model,
-			{state: _elm_lang$elm_architecture_tutorial$Model$Paused}) : ((_elm_lang$core$Native_Utils.cmp(model.y, (_elm_lang$elm_architecture_tutorial$Config$config.vehicle.y / 2) + _elm_lang$elm_architecture_tutorial$Config$config.base.y) > 0) ? _elm_lang$core$Native_Utils.update(
+			{state: _elm_lang$elm_architecture_tutorial$Model$Paused, score: 0}) : ((_elm_lang$core$Native_Utils.cmp(model.y, (_elm_lang$elm_architecture_tutorial$Config$config.vehicle.y / 2) + _elm_lang$elm_architecture_tutorial$Config$config.base.y) > 0) ? _elm_lang$core$Native_Utils.update(
 			model,
 			{state: _elm_lang$elm_architecture_tutorial$Model$Flying}) : (((_elm_lang$core$Native_Utils.cmp(model.x, 45) < 0) || (_elm_lang$core$Native_Utils.cmp(model.x, 50 + _elm_lang$elm_architecture_tutorial$Config$config.pad.x) > 0)) ? _elm_lang$core$Native_Utils.update(
 			model,
